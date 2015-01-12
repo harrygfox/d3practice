@@ -1,0 +1,48 @@
+body {
+    padding: 0;
+    margin: 0;
+    font-family: helvetica;
+    background-color: #eee;
+    width: 100%;
+}
+
+h1 {
+    font-weight: 100;
+    font-size: 3em;
+    color: #aaa;
+    text-align: center;
+    padding: 20px;
+    background-color: #333;
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+p, ul {
+    line-height: 1.2;
+    color: black;
+    font-weight: 100;
+    font-size: 1em;
+    padding: 20px;
+    margin: 0;
+    
+}
+
+ul {
+    padding:10px 10px 20px 3em;
+}
+
+hr {
+    margin: 0;
+}
+
+div.bar {
+    display: inline-block;
+    width: 20px;
+    height: 100px;
+    background-color: rgb(175,20,55);
+    margin: 0 2px;
+}
+
+@media() {
+    
+}
