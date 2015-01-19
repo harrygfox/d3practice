@@ -126,24 +126,35 @@ ellipses
 var svg2 = body.append("svg")
 svg2.attr({
     width: w,
-    height: h,
-    fill: "black"
+    height: h
 });
-var barSpacing = 1
+var barSpacing = 5
 var bar = svg2
     .selectAll("rect")
     .data(dataset2)
     .enter()
     .append("rect");
 
-bar
-    .attr({
-        x: function(d,i) { return i * (w/dataset2.length); },
-        y: function(d) { return h-(d * 8) ; },
-        width: function(d) { return (w/dataset2.length - barSpacing); },
-        height: function(d) { return d * 8; },
-        fill: function(d) { return "rgb(" + (d * 8) + ", 45, 25)";}
-    });
+function drawBarChart(dataset2){
+    
+    var xScale = d3.scale.ordinal()
+                    .domain(d3.range(dataset.length))
+                    .rangeBands([0, w]);
+
+    bar
+        .attr({
+            // x: function(d,i) { return i * (w/dataset2.length); },
+            x: function(d,i) { return xScale(i); },
+            y: function(d) { return h-(d * 8) ; },
+            width: function(d) { return (w/dataset2.length - barSpacing); },
+            height: function(d) { return d * 8; },
+            fill: function(d) { return "rgb(" + (d * 8) + ", 45, 25)";}
+        });
+
+    
+}
+
+drawBarChart(dataset2);
 
 // Adding labels to the bars of the graph
 
@@ -166,4 +177,23 @@ labels
         "text-anchor": "middle"
     });
     
+// var svg3 = body.append("svg")
+//     svg3.
+//         attr({
+//             width: w,
+//             height: h
+//         })
+//     var columns = svg3
+//         .selectAll("rect")
+//             .data(dataset2)
+//             .enter()
+//         .append("rect")
+//         .attr({
+//             x: function(d,i) {return i * w/dataset2.length;},
+//             y: function(d) {return h-d;},
+//             width: function(d) { return (w/dataset2.length - barSpacing); },
+//             height: function(d) { return d * 8; }
+//         })
 
+//     var yScale = d3.scale.linear()
+//                     .domain(d3.min())
