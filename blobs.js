@@ -1,11 +1,18 @@
 // Blobs of totals
-var xProportion = 20;
-var yProportion = 30;
+var xProportion = 0.08,
+    yProportion = 0.025,
+    h = 1000,
+    w = 1200,
+    padding = 20,
+    yPos = 0,
+    xPos = 0;
 
+// TOTAL SESSIONS
 var sessions = {
     total: 0,
     name: "Total Sessions"
 }
+//  TOTAL REWARD CLAIMS
 var claim = {
     total: 0,
     name: "Reward Claims"
@@ -14,6 +21,7 @@ var noClaim = {
     total: 0,
     name: "Unclaimed Rewards"
 }
+// TOTAL SOCIAL SHARES
 var social = {
     total: 0,
     name: "Social Shares"
@@ -22,6 +30,7 @@ var noShare = {
     total: 0,
     name: "Unshared Sessions"
 }
+// TOTAL DROPOFF
 var dropOff = {
     total: 0,
     name: "Drop Off"
@@ -31,8 +40,8 @@ var blobsWrapper = d3.select("body")
         .append("svg")
         .classed("blobs-wrapper", true)
         .attr({
-            height: 400,
-            width: 1000
+            height: h,
+            width: w
         });
 
 var dataset = d3.csv("sessions-less-shares.csv",
@@ -45,31 +54,15 @@ var dataset = d3.csv("sessions-less-shares.csv",
                 })
                 .entries(csv_file);
 
-        // ADD VALUES TO GLOABAL VARIABLES
+        // ADD VALUES TO GLOBAL VARIABLES
         calculateTotals(data);
+        
 
         // DRAW THE VARIABLES AS BLOBS
-        drawBlobs(data);
-
-        // Total Sessions
-        console.log("---------------------------------");
-        console.log("Total sessions = " + sessions.total);
-
-        // Total reward Claims
-        console.log("---------------------------------");
-        console.log("Total reward claim = " + claim.total);
-        console.log("Did NOT claim = " + noClaim.total);
-        
-        // Total social shares
-        console.log("---------------------------------");
-        console.log("Total social shares = " + social.total);
-        console.log("NO social share = " + noShare.total);
-
-        // Total drop off
-        console.log("---------------------------------");
-        console.log("Total drop = " + dropOff.total);
-
-
+        drawBlob(sessions);
+        drawBlob(claim);
+        drawBlob(social);
+        drawBlob(dropOff);
     }
 );
 
@@ -105,29 +98,51 @@ function calculateTotals(data) {
     };
 }
 
-function drawBlobs(data) {
-    confirm("are you ready for the blobs?");
+function drawBlob(object) {
+    
+    if(object == sessions) {
+        xPos = padding;
+    } else {
+        xPos = (sessions.total * xProportion) + (padding * 2);
+    }
 
-    var sessionsBlob =
-        blobsWrapper
-            .append("rect")
-            .attr({
-                height: (sessions.total/yProportion),
-                width: (sessions.total/xProportion),
-                fill: "red"
-            });
+    switch(object) {
+        case social:
+            yPos = (claim.total * yProportion) + (padding * 2);
+            break;
+        case dropOff:
+            yPos = (claim.total * yProportion) + (social.total * yProportion) + (padding * 3);
+            break;
+        default:
+            yPos = padding * 2;
+            break;
+    }
 
-    var claimsBlob =
-        blobsWrapper
-            .append("rect")
-            .attr({
-                height: (claim.total/yProportion),
-                width: (claim.total/xProportion),
-                fill: "blue",
-                x: (sessions.total/xProportion) + 30
-            });
-    addBlobName(sessions);
-    addBlobName(claim);
+    var blobAttr = {
+        height: object.total * yProportion,
+        width: object.total * xProportion,
+        x: xPos,
+        y: yPos
+    }
+
+    blobsWrapper
+        .append("path")
+        .attr("d", 
+            roundedRect(
+                blobAttr.x,
+                blobAttr.y,
+                blobAttr.width,
+                blobAttr.height,
+                5) 
+            )
+        .attr({
+            fill: "#ccc",
+            stroke: "#000",
+            class: object.name
+        });
+
+    addBlobName(object);
+    
 }
 
 function addBlobName(object) {
@@ -136,20 +151,45 @@ function addBlobName(object) {
         .text(object.name)
         .attr({
             x: function() {
-                if(object === sessions) {
-                    console.log("hello");
+                if(object == sessions) {
+                    return padding * 2;
                 } else {
-                    return (object.total/yProportion)/2;
+                    return (sessions.total * xProportion) + (padding * 3);
                 }
             },
-            y: (object.total/xProportion)/2,
-            fill: "white"
+            y: function() {
+                switch(object) {
+                    case social:
+                        return (claim.total * yProportion) + (padding * 3);
+                        break;
+                    case dropOff:
+                        return (claim.total * yProportion) + (social.total * yProportion) + (padding * 4);
+                        break;
+                    default:
+                        return padding * 3;
+                        break;
+                }
+            },
+            fill: "#333",
+            "font-family": "sans-serif",
+            "font-size": "15px",
+            "text-anchor": "right"
         });
-
 }
-        
 
-
-
+// FUNCTION FOR DRAWING THE PATHS
+// The top-left corner is ⟨x,y⟩.
+function roundedRect(x, y, width, height, radius) {
+  return "M" + (x + radius) + "," + y
+       + "h" + (width - 2 * radius)
+       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
+       + "v" + (height - 2 * radius)
+       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
+       + "h" + (- width + 2 * radius)
+       + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + -radius
+       + "v" + (- height + 2 * radius)
+       + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + -radius
+       + "z";
+}
 
 
